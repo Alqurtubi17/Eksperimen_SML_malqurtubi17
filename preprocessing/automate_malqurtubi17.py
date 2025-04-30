@@ -29,9 +29,10 @@ def preprocess_data(input_path, target_column, save_path, file_path, output_path
     df.drop(columns=[target_column]).head(0).to_csv(file_path, index=False)
     print(f"Nama kolom berhasil disimpan ke: {file_path}")
 
-    # Hapus duplikat & baris dengan NA pada target
+    # Hapus duplikat & baris dengan nilai NaN pada target
     df = df.drop_duplicates()
-    df = df.dropna(subset=[target_column])
+    df = df.dropna(subset=[target_column])  # Pastikan target tidak mengandung NaN
+    print(f"Data setelah menghapus baris dengan NaN di kolom target: {df.shape[0]} baris.")
 
     # Outlier removal (IQR)
     mask = pd.Series(True, index=df.index)
@@ -66,9 +67,15 @@ def preprocess_data(input_path, target_column, save_path, file_path, output_path
     smote = SMOTE(random_state=42)
     X_resampled, y_resampled = smote.fit_resample(X, y)
 
+    # Cek apakah ada nilai NaN setelah SMOTE pada kolom target
+    if y_resampled.isnull().sum() > 0:
+        print(f"Ada {y_resampled.isnull().sum()} nilai NaN setelah SMOTE pada target column.")
+    else:
+        print("Tidak ada NaN pada kolom target setelah SMOTE.")
+
     # Split train-test
     X_train, X_test, y_train, y_test = train_test_split(
-        X_resampled, y_resampled, test_size=0.3, random_state=42, stratify=y_resampled
+        X_resampled, y_resampled, test_size=0.3, random_state=42
     )
 
     # Fit & transform
@@ -80,7 +87,7 @@ def preprocess_data(input_path, target_column, save_path, file_path, output_path
 
     # Simpan dataset yang sudah diproses
     processed_data = pd.DataFrame(X_train_processed, columns=num_col + cat_col)
-    processed_data[target_column] = y_train
+    processed_data[target_column] = y_train.reset_index(drop=True)
     processed_data.to_csv(output_path, index=False)
 
     print("Preprocessing selesai dan data telah disimpan.")
