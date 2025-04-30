@@ -1,0 +1,37 @@
+name: Data Preprocessing
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Memungkinkan trigger manual dari GitHub UI
+
+jobs:
+  preprocess:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run preprocessing script
+      run: |
+        python preprocessing/automate_malqurtubi17.py diabetes_raw.csv Diabetes_binary preprocessing/preprocessor_pipeline.joblib preprocessing/data_header.csv preprocessing/diabetes_preprocessing.csv
+
+    - name: Commit and push processed data
+      uses: EndBug/add-and-commit@v7
+      with:
+        add: 'preprocessing/diabetes_preprocessing.csv'
+        message: 'Add processed data'
+        author_name: 'GitHub Actions'
+        author_email: 'actions@github.com'
