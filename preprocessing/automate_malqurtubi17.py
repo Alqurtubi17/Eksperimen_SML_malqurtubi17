@@ -86,12 +86,3 @@ def preprocess_data(input_path, target_column, save_path, file_path, output_path
     print("Preprocessing selesai dan data telah disimpan.")
 
     return X_train_processed, X_test_processed, y_train, y_test
-
-if __name__ == "__main__":
-    X_train, X_test, y_train, y_test = preprocess_data(
-        input_path="diabetes_raw.csv",
-        target_column="Diabetes_binary",
-        save_path="preprocessing/preprocessor_pipeline.joblib",
-        file_path="preprocessing/data_header.csv",
-        output_path="preprocessing/diabetes_preprocessing.csv"
-    )
